@@ -37,16 +37,17 @@ namespace Delopgave1
         public MainWindow()
         {
             InitializeComponent();
-          //  KeyUp += new KeyEventHandler(MainWindow_KeyUp);
+            KeyUp += new KeyEventHandler(MainWindow_KeyUp);
           //  MouseDown += new MouseButtonEventHandler(MainWindow_MouseDown);
          //   MouseUp += new MouseButtonEventHandler(MainWindow_MouseUp);
             MouseMove += new MouseEventHandler(MainWindow_MouseMove);
-          //  SetColor(Colors.Black);
+            SetColor(Colors.Black);
         }
 
-        private void SetColor(Color black)
+        private void SetColor(Color color)
         {
-            throw new NotImplementedException();
+            _drawColor = color;
+            rctColor.Fill = new SolidColorBrush(_drawColor);
         }
 
         private void MainWindow_MouseMove(object sender, MouseEventArgs e)
@@ -83,7 +84,27 @@ namespace Delopgave1
 
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)
         {
-            throw new NotImplementedException();
+            switch (e.Key)
+            {
+                case Key.B:
+                    SetColor(Colors.Black);
+                    break;
+                case Key.Y:
+                    SetColor(Colors.Yellow);
+                    break;
+                case Key.G:
+                    SetColor(Colors.Green);
+                    break;
+                case Key.R:
+                    SetColor(Colors.Red);
+                    break;
+                case Key.U:
+                    SetColor(Colors.Blue);
+                    break;
+                default:
+                    break;
+
+            }
         }
     }
 }
