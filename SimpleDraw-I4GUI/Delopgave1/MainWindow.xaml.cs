@@ -1,18 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace Delopgave1
 {
@@ -31,15 +21,14 @@ namespace Delopgave1
         private Point _startPos;
         private Point _currPos;
         private Shape _currShape;
-        private bool isDrawing = false;
+        private bool _isDrawing = false;
         private DrawingTool _tool;
-        private DispatcherTimer _timer;
         public MainWindow()
         {
             InitializeComponent();
             KeyUp += new KeyEventHandler(MainWindow_KeyUp);
-          //  MouseDown += new MouseButtonEventHandler(MainWindow_MouseDown);
-         //   MouseUp += new MouseButtonEventHandler(MainWindow_MouseUp);
+            MouseDown += new MouseButtonEventHandler(MainWindow_MouseDown);
+            MouseUp += new MouseButtonEventHandler(MainWindow_MouseUp);
             MouseMove += new MouseEventHandler(MainWindow_MouseMove);
             SetColor(Colors.Black);
         }
@@ -56,7 +45,7 @@ namespace Delopgave1
             tbxX.Text = _currPos.X.ToString("F0");
             tbxY.Text = _currPos.Y.ToString("F0");
 
-            if (!isDrawing) return;
+            if (!_isDrawing) return;
             if (_tool != DrawingTool.Line)
             {
                 var width = _currPos.X - _startPos.X;
@@ -67,6 +56,7 @@ namespace Delopgave1
             else
             {
                 var l = _currShape as Line;
+                if (l == null) return;
                 l.X2 = _currPos.X;
                 l.Y2 = _currPos.Y;
             }
@@ -74,12 +64,48 @@ namespace Delopgave1
 
         private void MainWindow_MouseUp(object sender, MouseButtonEventArgs e)
         {
-            throw new NotImplementedException();
+            _isDrawing = false;
+            ReleaseMouseCapture();
         }
 
         private void MainWindow_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            throw new NotImplementedException();
+            _startPos = e.GetPosition(canvas);
+            if ((Keyboard.Modifiers & ModifierKeys.Control) != 0 | (Keyboard.Modifiers & ModifierKeys.Alt) != 0)
+            {
+                if ((Keyboard.Modifiers & ModifierKeys.Control ) != 0)
+                {
+                    _tool = DrawingTool.Ellipsis;
+                    _currShape = new Ellipse();
+                }
+                else
+                {
+                    _tool = DrawingTool.Rectangle;
+                    _currShape = new Rectangle();
+                }
+                Canvas.SetLeft(_currShape, _startPos.X);
+                Canvas.SetTop(_currShape, _startPos.Y);
+                _currShape.Width = 2;
+                _currShape.Height = 2;
+                _currShape.Fill = new SolidColorBrush(_drawColor);
+            }
+            else
+            {
+                _tool = DrawingTool.Line;
+                var l = new Line
+                {
+                    Stroke = new SolidColorBrush(_drawColor),
+                    StrokeThickness = 2.0,
+                    X1 = _startPos.X,
+                    Y1 = _currPos.Y,
+                    X2 = _currPos.X + 1,
+                    Y2 = _currPos.Y + 1
+                };
+                _currShape = l;
+            }
+            CaptureMouse();
+            canvas.Children.Add(_currShape);
+            _isDrawing = true;
         }
 
         private void MainWindow_KeyUp(object sender, KeyEventArgs e)
